@@ -1,0 +1,9 @@
+# deps
+node_modules/
+
+# compiled
+es5/
+
+# generated
+coverage/
+esdoc/
