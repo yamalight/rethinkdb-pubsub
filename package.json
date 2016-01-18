@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rxmqjs/rxmq.js"
+    "url": "https://github.com/yamalight/rethinkdb-pubsub"
   },
   "keywords": [
     "rethinkdb",
