@@ -1,6 +1,6 @@
 {
   "name": "rethinkdb-pubsub",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Implementation of message queueing on top of RethinkDB changefeeds as a library",
   "main": "es5/component.js",
   "es6": "index.js",
