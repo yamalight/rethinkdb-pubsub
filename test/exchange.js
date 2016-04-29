@@ -9,17 +9,25 @@ test('Exchange', (it) => {
     it.test('# should send message to subscriber', (t) => {
         const connection = server.createConnection();
         const testExchange = new Exchange('testexchange', connection);
+        let testIndex = 0;
         // subscribe
         testExchange
         .queue(topic => topic.eq('test.out'))
         .subscribe((topic, payload) => {
-            t.equal(payload, 'test');
             t.equal(topic, 'test.out');
-            t.end();
-            // close connection
-            testExchange.conn.close();
-            // stop server
-            server.stop();
+
+            if (testIndex === 0) {
+                t.equal(payload, 'test');
+                testIndex++;
+                return;
+            }
+
+            if (testIndex === 1) {
+                t.equal(payload, 'test2');
+                t.end();
+                // just exit to close all connections
+                process.exit();
+            }
         });
         setTimeout(() => {
             // publish
@@ -27,5 +35,12 @@ test('Exchange', (it) => {
             .topic('test.out')
             .publish('test');
         }, 50);
+
+        setTimeout(() => {
+            // publish
+            testExchange
+            .topic('test.out')
+            .publish('test2');
+        }, 100);
     });
 });

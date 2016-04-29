@@ -12,13 +12,14 @@ export class Exchange {
         this.table = r.table(name);
         this._asserted = false;
 
-        // Bluebird's .bind ensures `this` inside our callbacks is the exchange
         this.promise = r.connect(connOpts)
         .then(conn => this.conn = conn)
         .catch(r.Error.RqlRuntimeError, (err) => {
             console.error(err.message);
             process.exit(1);
         });
+
+        this.assertPromise = this.promise;
     }
 
     // Returns a topic in this exchange
@@ -90,13 +91,13 @@ export class Exchange {
     // Ensures the table specified exists and has the correct primary_key
     // and durability settings
     assertTable() {
-        return this.promise.then(() => {
+        return this.assertPromise.then(() => {
             if (this._asserted) {
-                return;
+                return undefined;
             }
 
-            return r.dbCreate(this.db)
-                .run(this.conn) // eslint-disable-line
+            this.assertPromise = r.dbCreate(this.db)
+                .run(this.conn)
                 .finally(() => r.db(this.db)
                     .tableCreate(this.name)
                     .run(this.conn)
@@ -106,7 +107,12 @@ export class Exchange {
                         throw err;
                     }
                 })
-                .then(() => this._asserted = true);
+                .then(() => {
+                    this._asserted = true;
+                    this.assertPromise = this.promise;
+                });
+
+            return this.assertPromise;
         });
     }
 }
